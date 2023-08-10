@@ -1,0 +1,22 @@
+---
+    - debug:
+        msg:
+         - "{{ cluster_VIP_A }}"
+         - "{{ cluster_VIP_B }}"
+
+# try templating for cluster_A firewall rules ie. cluster_A opens ports for cluster_B IPs/ports
+    - set_fact:
+        firewall_prefix: "{{ cluster_prefix_B }}"
+
+    - name: template the firewall data - cluster_A
+      template:
+         src: firewall_data.j2
+         dest: "{{ sdir}}/{{ cluster_VIP_A }}_firewall.txt"
+
+    - set_fact:
+        firewall_prefix: "{{ cluster_prefix_A }}"
+
+    - name: template the firewall data - cluster_B
+      template:
+         src:  firewall_data.j2
+         dest: "{{ sdir }}/{{ cluster_VIP_B }}_firewall.txt"

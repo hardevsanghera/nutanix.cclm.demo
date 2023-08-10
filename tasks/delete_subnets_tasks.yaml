@@ -1,0 +1,35 @@
+---
+    - name: Setting Variables for cluster_A
+      set_fact:
+        vlan_to_go: "{{ vlan_to_delete }}"
+
+    - name: List subnets using subnet_type filter criteria
+      ntnx_subnets_info:
+        filter:
+          name: "{{ vlan_to_go }}"
+        kind: subnet
+      register: result
+      ignore_errors: True
+
+    - name: result
+      debug:
+        msg: "{{ result }}"
+
+    - name: capture vlan to delete's uuid
+      set_fact:
+        uuid_to_delete_A: "{{ result.response.entities.0.metadata.uuid }}"
+        uuid_to_delete_B: "{{ result.response.entities.1.metadata.uuid }}"
+      when: result.response.metadata.length  == 2
+
+    - name: 'Delete Secondary VLAN subnet with IP Pool (mangaged)  on clusters'
+      ntnx_subnets:
+        state: absent
+        name: "{{ vlan_to_go }}"
+        subnet_uuid: "{{ item }}"
+      register: result
+      ignore_errors: true
+      when:  item is defined
+      loop:
+        - "{{ uuid_to_delete_A }}"
+        - "{{ uuid_to_delete_B }}"
+

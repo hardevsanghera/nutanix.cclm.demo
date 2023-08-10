@@ -1,0 +1,8 @@
+---
+    - name: "Execute acli script to relocate VM storage to CCLMcontainer"
+      shell:
+         bash -ilc  "acli vm.update_container {{ sql_server_vmname }} container={{ sc_name }} wait=false"
+      register: shell_out
+      delegate_to: "{{ item }}"
+      loop:
+        - "{{ cluster_VIP_A }}"

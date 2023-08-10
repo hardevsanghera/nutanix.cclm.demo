@@ -1,0 +1,77 @@
+---
+#playbook to fetch Windows image (for Nutanix AHV) to use with the CCLM demo
+- name: Fetch disk image for Nutanix AHV
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ../vars/vars.yaml
+  vars:
+    pc: "{{ nutanix_host }}"
+    pc_user: "{{ nutanix_username }}"
+    pc_password: "{{ nutanix_password }}" 
+    image_description: "Used by CCLM Demo"
+    image_source_uri: "http://10.42.194.11/workshop_staging/" #assumes INTERNAL nutanix HPOC, build your own if you need to
+    api_uri: "{{ 'https://' + pc + ':9440/api/nutanix/v3/images' }}"
+
+  tasks:
+  - debug:
+     msg: "pc is: {{ pc }}"
+
+  - name: Get a list (json) of all the images known to the Prism Central
+    local_action:
+      module: uri
+      url: "{{ api_uri + '/list' }}"
+      method: POST
+      url_username: "{{ pc_user }}"
+      url_password: "{{ pc_password }}"
+      validate_certs: no
+      return_content: yes
+      status_code: 200
+      body_format: json
+      body: "{}"
+      force_basic_auth: yes
+    check_mode: false
+    register: result
+
+  - name: Show result
+    debug:
+      msg: "{{ result.json }}"
+    check_mode: false
+
+  - name: Pull the target image into Prism Central
+    local_action:
+      module: uri
+      url: "{{ api_uri }}"
+      method: POST
+      url_username: "{{ pc_user }}"
+      url_password: "{{ pc_password }}"
+      validate_certs: no
+      return_content: yes
+      status_code: 202
+      body_format: json
+      body: |
+            {
+              "spec":{
+                  "name":"{{ item }}",
+                  "resources":{
+                    "image_type":"DISK_IMAGE",
+                    "source_uri":"{{ image_source_uri }}/{{ item }}"
+                  },
+                  "description":"{{ image_description }}"
+              },
+              "metadata":{
+                  "kind":"image"
+              }
+            }
+      force_basic_auth: yes
+    check_mode: false
+    register: result
+    loop:
+      - "{{ server_image_name }}"
+      - "{{ ws_image_name }}"
+
+  - name: Show result of the last new image call - result is returned quickly - upload will take a few minutes, maybe 10 or more minutes
+    debug:
+      msg: 
+       - result
+    check_mode: false

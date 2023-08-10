@@ -1,0 +1,9 @@
+---
+    - name: Define storage container
+      shell:
+         bash -ilc "/home/nutanix/prism/cli/ncli container add name={{ sc_name }} sp-name={{ sp_name }}"
+      register: sc_defined
+      delegate_to: "{{ cvm }}"
+   
+#   - debug:
+#       msg: "{{ sc_defined }}"

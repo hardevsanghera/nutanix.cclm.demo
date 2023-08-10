@@ -1,0 +1,58 @@
+#### hardev.sanghera@nutanix.com August 2023
+#### These Ansible playbooks and associated variables assume 2x RX HPOC clusters with the associated RX IP/password scheme.
+#### Further, the cluster should have a stretch vlan enabled between them.
+#### Two clusters: cluster_A and cluster_B will be managed by a single PC.
+#### cluster_A will be the Primary (aka the source cluster) and cluster_B will be the secondary (aka the failover target cluster)
+#### VM(s) can be failed over from cluster_A to cluster_B while maintaining the same IP address thanks to synchronous data replication
+#### between cluster_A and cluster_B as well as the stretch vlan between the two clusters a VM can be live migrated A -> B and once
+#### data sync has settled the VM can be live migrated B -> A.
+####
+cluster_name_A: "PHX-POC000"                                  #EDIT 1 Primary/Source cluster for CCLM - also used for Rest API calls to PC by these Ansible playbooks
+cluster_VIP_A: "10.10.10.10"                                  #EDIT 2 Primary/Source cluster A
+cluster_vlan_A: 999                                           #EDIT 3 Secondary vlan for cluster A
+cluster_name_B: "PHX-POC00A"                                  #EDIT 4 Secondary/Target cluster for CCLM
+cluster_VIP_B: "10.10.10.11"                                  #EDIT 5 Secondary/Target cluster B
+cluster_vlan_B: 998                                           #EDIT 6 Secondary vlan for cluster B - ie. stretch to this
+nutanix_username: "admin"                                     #EDIT 7 for your environment - Prism Central userid - use cluster_A PC
+nutanix_password: "password"                                  #EDIT 8 for your environment - Prism Central password - use ckuster_A PC
+mysql_password: "mySQLabcd0"                                  #EDIT will set this login password for the MSSQL database
+####
+####
+#### ** DO NOT EDIT VARIABLES BELOW THIS LINE **  ###
+r_exp: '^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})'            #DO NOT EDIT Regular Expression to get first 3 parts of IP address
+cluster_prefix_A: "{{ cluster_VIP_A | regex_search(r_exp) }}" #DO NOT EDIT first 3 parts of cluster_A VIP
+cluster_prefix_B: "{{ cluster_VIP_B | regex_search(r_exp) }}" #DO NOT EDIT first 3 parts of cluster_B VIP
+nutanix_host: "{{ cluster_prefix_A }}.39"                     #DO NOT EDIT pc for cluster_A and pc to aim rest calls at
+sql_server_vmname: "SQLSERVER-CCLM-vm"                        #DO NOT EDIT - OK, you can edit if you like
+ws_vmname: "WINWS-CCLM-vm"                                    #DO NOT EDIT - OK, you can edit if you like
+sc_name: "CCLMContainer"                                      #DO NOT EDIT - OK, you can edit if you like
+cclm_vlan_name: "CCLMvlan"                                    #DO NOT EDIT - OK, you can edit if you like
+cclm_category: "CCLMcat"                                      #DO NOT EDIT - OK, you can edit if you like
+sp_name: "SP01"                                               #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
+vswitch: "vs0"                                                #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
+primary_network: "Primary"                                    #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
+vlan_to_delete: "Secondary"                                   #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit  
+sw_uuid_A: ""                                                 #DO NOT EDIT switch uuid cluster_A
+sw_name_A: ""                                                 #DO NOT EDIT switch name cluster_A
+sw_uuid_B: ""                                                 #DO NOT EDIT switch uuid cluster_B
+sw_name_B: ""                                                 #DO NOT EDIT switch name cluster_B
+subnet_network_prefix: 25                                     #DO NOT EDIT network prefix for HPOC networks
+firewall_prefix: ""                                           #DO NOT EDIT firewall prefix name for rules files build
+cluster_uuid_A: ""                                            #DO NOT EDIT uuid cluster_A
+cluster_uuid_B: ""                                            #DO NOT EDIT uuid cluster_B
+script_path: "sysprep.txt"                                    #DO NOT EDIT script used by sysprep provisioning to customize  server VM
+script_path_ws: "sysprep_win10.txt"                           #DO NOT EDIT script used by sysprep provisioning to customize  workstation VM
+server_image_name: "Windows2019.qcow2"                        #DO NOT EDIT AHV image for server VM 
+ws_image_name: "Win10v2004-20201020.qcow2"                    #DO NOT EDIT AHV image for Workstation VM ** This ismage will not sysprep as yet - working on it
+win_vm_user: "Administrator"                                  #DO NOT EDIT userid for the database server
+wswin_vm_user: "Administrator"                                #DO NOT EDIT userid for the workstation
+win_vm_pw: "nutanix/4u"                                       #DO NOT EDIT password to set for user on database server
+setdiskps1_file: "sqlsvr-setupDataDisk.ps1"                   #DO NOT EDIT script to set T: as the db datatadisk
+installsqlserverps1_file: "sqlsvr-installSqlServer.ps1"       #DO NOT EDIT script to install Microsoft SQL Server - pull in an iso form the web
+installsqlstudiops1_file: "sqlsvr-installSqlStudio.ps1"       #DO NOT EDIT script to install Microsoft SQL Studio
+mssql_user: "SA"                                              #DO NOT EDIT MSSQL db admin userid
+mssql_dbname: "homestead"                                     #DO NOT EDIT MSSQL database name for an application, no data or application is provided
+sdir: "scratch"                                               #DO NOT EDIT playbook directory for generated files such as powershell/sysprep scripts 
+tdir: "tasks"                                                 #DO NOT EDIT playbook directory for tasks
+fdir: "files"                                                 #DO NOT EDIT playbook directory for files
+cvm_user: "nutanix"                                           #DO NOT EDIT userid of cvm to use by Ansible ssh

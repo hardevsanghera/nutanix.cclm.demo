@@ -1,0 +1,88 @@
+---
+# hardev.sanghera@nutanix.com August 2023
+- name: Setup for CCLM demo
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+    - vars/vars.yaml
+  collections:
+    - nutanix.ncp
+  module_defaults:
+    group/nutanix.ncp.ntnx:
+      nutanix_host: "{{ nutanix_host }}"
+      nutanix_username: "{{ nutanix_username }}"
+      nutanix_password: "{{ nutanix_password }}"
+      validate_certs: false
+
+  tasks:
+
+    - name: Set Workstation VM image to Windows Server image - until fix the Windows 10 image or its sysprep
+      set_fact:
+        ws_image_name: "{{ server_image_name }}"
+
+    - name: Dynamically add 2x cvms to host inventory - used by ssh to cvms
+      add_host:
+        hostname: "{{ item }}"
+        ansible_user: "{{ cvm_user }}"
+        ansible_password: "{{ nutanix_password }}"
+        ansible_connection: ssh
+      loop:
+        - "{{ cluster_VIP_A }}"
+        - "{{ cluster_VIP_B }}"
+
+    - name: Enable DR on the Prism Central
+      debug:
+        msg: ": You must manually 'Enable Disaster Recovery' on cluster_A PC"
+
+    - name: "Consolidate to a single PC at {{ cluster_prefix_A }}.39"
+      import_tasks: "{{ tdir }}/setup_single_pc_tasks.yaml"
+
+    - name: Query the clusters
+      import_tasks: "{{ tdir }}/query_clusters_tasks.yaml"
+
+    - name: Delete "Secondary" vlans from cluster_A and cluster_B
+      import_tasks: "{{ tdir }}/delete_subnets_tasks.yaml"
+
+    - name: Create storage container on cluster_A
+      import_tasks: "{{ tdir }}/storage_container_tasks.yaml"
+      vars:
+        cvm: "{{ cluster_VIP_A }}"
+
+    - name: Create storage container on cluster_B
+      import_tasks: "{{ tdir }}/storage_container_tasks.yaml"
+      vars:
+        cvm: "{{ cluster_VIP_B }}"
+
+    - name: Create firewall rules files for cluster_A and cluster_B
+      import_tasks: "{{ tdir }}/firewall_rules_local_tasks.yaml"
+
+    - name: Apply firewall rules files on cluster_A and cluster_B
+      import_tasks: "{{ tdir }}/apply_firewall_tasks.yaml"
+
+    - name: Create CCLM subnets on cluster_A and cluster_B
+      import_tasks: "{{ tdir }}/build_subnet_tasks.yaml"
+
+    - name: Create CCLM category on cluster_A PC
+      import_tasks: "{{ tdir }}/category_tasks.yaml"
+     
+    - name: Create Server VM (the VM to be live migrated) on cluster_A
+      import_tasks: "{{ tdir }}/create_vm_tasks.yaml"
+      vars:
+        vm_type: "server"
+
+    - name: Relocate the server VM vdisks to the CCLM container on cluster_A
+      import_tasks: "{{ tdir }}/relocate_vm_storage_tasks.yaml"
+
+    - name: Create Workstation Windows VM on cluster_A
+      import_tasks: "{{ tdir }}/create_vm_tasks.yaml"
+      vars:
+        vm_type: "ws"
+   
+    - debug:
+        msg:
+         - "All done, now you should:"
+         - "  - Install NGT on {{ sql_server_vmname }} and {{ ws_vmname }}"
+         - "  - Create a Protecion Policy for CCLM"
+         - "  - Create a Recovery Plan for CCLM"
+         - "  - Demo live migration of {{ sql_server_vmname }} from cluster_A to cluster_B over the stretched vlan"
+

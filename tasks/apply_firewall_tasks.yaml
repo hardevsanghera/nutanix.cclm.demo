@@ -1,0 +1,9 @@
+---
+    - name: Execute script to add firewall rules to open ports for CCLM
+      shell:
+         bash -ilc "{{ lookup('ansible.builtin.file', '{{ sdir }}/{{ item }}_firewall.txt' )}}"
+      register: shell_out
+      delegate_to: "{{ item }}"
+      loop:
+        - "{{ cluster_VIP_A }}"
+        - "{{ cluster_VIP_B }}"

@@ -1,0 +1,9 @@
+---
+    - name: Create category key with values for CCLM
+      ntnx_categories:
+        state: "present"
+        name: "{{ cclm_category }}"
+        desc: "For CCLM demo"
+        values:
+          - "{{ cclm_category }}"
+      register: mycat

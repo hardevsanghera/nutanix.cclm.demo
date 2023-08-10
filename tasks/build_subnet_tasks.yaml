@@ -1,0 +1,89 @@
+---
+    - name: Setting Variables for cluster_A
+      set_fact:
+        cluster_name: "{{ cluster_name_A }}"
+        virtual_switch_name: "{{ vswitch }}"
+        network_ip: "{{ cluster_prefix_A}}.128"
+        network_prefix: "{{ subnet_network_prefix }}"
+        gateway_ip_address: "{{ cluster_prefix_A }}.129"
+        start_address: "{{ cluster_prefix_A }}.132"
+        end_address: "{{ cluster_prefix_A }}.253"
+        dns_servers: [10.42.194.10]
+        domain_search: []
+        domain_name: []
+        tftp_server_name: ""
+        boot_file: ""
+        dhcp_server_address: ""
+        vpc_name: ""
+        vpc_uuid: ""
+        cluster_vlan: "{{ cluster_vlan_A }}"
+        new_vlan_name: "{{ cclm_vlan_name }} "
+
+    - name: 'Create VLAN subnet with IP Pool (mangaged) - on Cluster_A'
+      ntnx_subnets:
+        state: present
+        name: "{{ cclm_vlan_name }}"
+        vlan_subnet:
+          vlan_id: "{{ cluster_vlan_A }}"
+          virtual_switch:
+            name: '{{ virtual_switch_name }}'
+          cluster:
+            name: '{{ cluster_name }}'
+          ipam:
+            network_ip: '{{ network_ip }}'
+            network_prefix: '{{ network_prefix }}'
+            gateway_ip: '{{ gateway_ip_address }}'
+            ip_pools:
+              - start_ip: '{{ start_address }}'
+                end_ip: '{{ end_address }}'
+            dhcp:
+              dns_servers: '{{ dns_servers }}'
+      register: result
+      ignore_errors: true
+
+#######
+## Use same IP variabls for the CCLM subnet in cluster_B so the migrated VMs can have the same IP address
+## NGT must also be installed/enabled inb the VM
+######
+
+    - name: Setting Variables for cluster_B - which should have the same IP setup as cluster_A Secondary network/vlan details from RX  
+      set_fact:
+        cluster_name: "{{ cluster_name_B }}"
+        virtual_switch_name: "{{ vswitch }}"
+        network_ip: "{{ cluster_prefix_A}}.128"
+        network_prefix: "{{ subnet_network_prefix }}"
+        gateway_ip_address: "{{ cluster_prefix_A }}.129"
+        start_address: "{{ cluster_prefix_A }}.132"
+        end_address: "{{ cluster_prefix_A }}.253"
+        dns_servers: [10.42.194.10]
+        domain_search: []
+        domain_name: []
+        tftp_server_name: ""
+        boot_file: ""
+        dhcp_server_address: ""
+        vpc_name: ""
+        vpc_uuid: ""
+        cluster_vlan: "{{ cluster_vlan_A }}"
+        new_vlan_name: "{{ cclm_vlan_name }} "
+
+    - name: 'Create VLAN subnet with IP Pool (mangaged) - on cluster_B'
+      ntnx_subnets:
+        state: present
+        name: "{{ cclm_vlan_name }}"
+        vlan_subnet:
+          vlan_id: "{{ cluster_vlan_A }}"
+          virtual_switch:
+            name: '{{ virtual_switch_name }}'
+          cluster:
+            name: '{{ cluster_name }}'
+          ipam:
+            network_ip: '{{ network_ip }}'
+            network_prefix: '{{ network_prefix }}'
+            gateway_ip: '{{ gateway_ip_address }}'
+            ip_pools:
+              - start_ip: '{{ start_address }}'
+                end_ip: '{{ end_address }}'
+            dhcp:
+              dns_servers: '{{ dns_servers }}'
+      register: result
+      ignore_errors: true

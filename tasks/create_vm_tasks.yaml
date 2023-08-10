@@ -1,0 +1,238 @@
+---
+    - name: Preping Windows VMs
+      debug: 
+        msg: 
+         - "{{ ansible_play_name }}: Now deploying a Windows VMs"
+         - "Server image: {{ server_image_name }}"
+         - "Workstation image:{{ ws_image_name }}"
+         - "SQL Server vmname: {{ sql_server_vmname }}"
+         - "Worksation vmname: {{ ws_vmname }}"
+         - "Name of cluster A: {{ cluster_name_A }}"
+         - "====== NB: Will be using {{ server_image_name }} to deploy the Windows WS, for sysprep reasons"
+
+    - name: Template Administrator password into sysprep.txt for new Windows Server and Workstation
+      template:
+        src: sysprep_win10.j2
+        dest: "{{ sdir }}/sysprep_win10.txt"
+
+    - template:
+        src: sysprep.j2
+        dest: "{{ sdir }}/sysprep.txt"
+
+    - name: Template SQL server SA password into SQL Server installation script
+      template:
+        src: sqlsvr-installSqlServerps1.j2
+        dest: "{{ sdir }}/sqlsvr-installSqlServer.ps1"
+
+    - name: Create database server (MSSQL Server VM)
+      ntnx_vms:
+        state: present
+        name: "{{ sql_server_vmname }}"
+        desc: "SQL Server DB for CCLM demo"
+        categories:
+          AppType:
+            - "Default"
+        cluster:
+          name: "{{ cluster_name_A }}"
+        networks:
+          - is_connected: True
+            subnet:
+              name: "{{ cclm_vlan_name }}" #HAS to be managed, ie. have a pool of IPs defined
+        disks:
+          - type: "DISK"
+            bus: "SCSI"
+            clone_image:
+              name: "{{ server_image_name }}"
+          - type: "DISK"
+            size_gb: 100
+            bus: "SCSI"
+          - type: "CDROM"
+            bus: "IDE"
+        vcpus: 2
+        cores_per_vcpu: 2
+        memory_gb: 16
+        guest_customization:
+          type: "sysprep"
+          script_path: "{{ sdir }}/{{ script_path }}"
+          is_overridable: True
+      register: output
+      when:  vm_type  == 'server'
+
+    - name: Get SQL Server vm ip/spec
+      set_fact:
+        sqlservervmip: "{{ output.response.spec.resources.nic_list[0].ip_endpoint_list[0].ip }}"
+        sqlserverspec: "{{ output.response.spec }}"
+        var: "sqlserverspec"
+      when:  vm_type  == 'server'
+
+#   - name: Print out SQL Server VM spec
+#     debug:
+#       var: "sqlserverspec"
+#     when:  vm_type  == 'server'
+
+    - name:  Print out SQL Server VM IP
+      debug:
+        var: "sqlservervmip"
+      when:  vm_type  == 'server'
+
+    - name: Dynamically add newly created Windows VM to the inventory
+      add_host:
+        hostname: "{{ sqlservervmip }}"
+        groups: threetiervms
+        ansible_user: "{{ win_vm_user }}"
+        ansible_password: "{{ win_vm_pw }}"
+        ansible_connection: winrm
+        ansible_winrm_port: 5985
+        ansible_winrm_transport: ntlm
+      when:  vm_type  == 'server'
+
+    - pause: #Work around for timing issues.
+        seconds: 120
+      when:  vm_type  == 'server'
+
+    - name: Read file into a variable for setting SQL server DATA disk
+      set_fact: 
+         setdiskps1: "{{ item }}"
+      with_file: "{{ fdir }}/{{ setdiskps1_file }}"
+      when:  vm_type  == 'server'
+
+    - name: Setup "T" DATA disk for SQL Server
+      ansible.windows.win_powershell:
+        script: "{{ sdir }}/{{ setdiskps1 }}"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
+    - name: Read file into a variable for installing SQL Server software
+      set_fact: 
+         installsqlserverps1: "{{ item }}"
+      with_file: "{{ fdir }}/{{ installsqlserverps1_file }}"
+      when:  vm_type  == 'server'
+
+    - name: Read file into a variable for installing SQL Server Management Studio
+      set_fact: 
+         installsqlstudiops1: "{{ item }}"
+      with_file: "{{ fdir }}/{{ installsqlstudiops1_file }}"
+      when:  vm_type  == 'server'
+
+    - name: Install SQL Server software into the Server VM
+      ansible.windows.win_powershell:
+        script: "{{ installsqlserverps1 }}"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
+    - name:  Install SQL Server Management Studio into the Server VM
+      ansible.windows.win_powershell:
+        script: "{{ installsqlstudiops1 }}"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
+    - pause: #Work around for timing issues - need server to finish boot/customizations
+        seconds: 60
+      when:  vm_type  == 'server'
+
+    - name:  Make (ie. Enable)  a hole in the [fire]wall for pinging the SQL Server vm
+      ansible.windows.win_powershell:
+       script: |
+         Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
+    - name: Create an application database (for Tasks application - application not installed)
+      ansible.windows.win_powershell:
+       script: |
+         sqlcmd -U {{ mssql_user }} -P {{ mysql_password }} -Q "CREATE DATABASE {{ mssql_dbname }};"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
+    - name: Set Output message for completion
+      ansible.builtin.set_fact: 
+        final_msg: | 
+          {{'"'}}MS SQL Server IP:  {{sqlservervmip}} {{'"'}}
+      when:  vm_type  == 'server'
+   
+    - debug:
+        msg:  "{{ final_msg }}"
+      when:  vm_type  == 'server'
+
+#############################################
+# DEPLOY WORKSTATION
+#############################################
+
+    - debug:
+        msg: "Primary network for Workstation VM: {{ primary_network }}"
+
+#####################
+    - name: Create Workstation VM
+      ntnx_vms:
+        state: present
+        name: "{{ ws_vmname }}"
+        desc: "Workstation for CCLM"
+        categories:
+          AppType:
+            - "Default"
+        cluster:
+          name: "{{ cluster_name_A }}"
+        networks:
+          - is_connected: True
+            subnet:
+              name: "{{ primary_network }}" #HAS to be managed, ie. have a pool of IPs defined
+        disks:
+          - type: "DISK"
+            bus: "SCSI"
+            clone_image:
+              name: "{{ ws_image_name }}"
+          - type: "CDROM"
+            bus: "IDE"
+        vcpus: 2
+        cores_per_vcpu: 2
+        memory_gb: 16
+        guest_customization:
+          type: "sysprep"
+          script_path: "{{ sdir }}/{{ script_path_ws }}"
+          is_overridable: True
+      register: ws_output
+      when:  vm_type  == 'ws'
+
+    - name: Get Windows Workstation
+      set_fact:
+        wsvmip: "{{ ws_output.response.spec.resources.nic_list[0].ip_endpoint_list[0].ip }}"
+        wsvpspec: "{{ ws_output.response.spec }}"
+      when:  vm_type  == 'ws'
+
+    - name: Dynamically add newly created Windows VM to the inventory
+      add_host:
+        hostname: "{{ wsvmip }}"
+        groups: threetiervms
+        ansible_user: "{{ wswin_vm_user }}"
+        ansible_password: "{{ win_vm_pw }}"
+        ansible_connection: winrm
+        ansible_winrm_port: 5985
+        ansible_winrm_transport: ntlm
+      when:  vm_type  == 'ws'
+
+    - pause:
+        seconds: 120
+      when:  vm_type  == 'ws'
+
+    - name:  Make (ie. Enable)  a hole in the [fire]wall for pinging the workstation vm
+      ansible.windows.win_powershell:
+       script: |
+         Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"
+      delegate_to: "{{ wsvmip }}"
+      when:  vm_type  == 'ws'
+
+    - name: Read file into a variable for installing SQL Server Management Studio
+      set_fact: 
+         installsqlstudiops1: "{{ item }}"
+      with_file: "{{ fdir }}/{{ installsqlstudiops1_file }}"
+      when:  vm_type  == 'ws'
+
+    - name: Install SQL Studio Manager software into the Workstation VM
+      ansible.windows.win_powershell:
+        script: "{{ installsqlstudiops1 }}"
+      delegate_to: "{{ wsvmip }}"
+      when:  vm_type  == 'ws'
+
+    - pause:
+        seconds: 60
+      when:  vm_type  == 'ws'

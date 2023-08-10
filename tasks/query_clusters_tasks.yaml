@@ -1,0 +1,47 @@
+---
+  - name: Getting all clusters
+    ntnx_clusters_info:
+    register: clusters
+
+  - name: List clusters
+    ntnx_clusters_info:
+      length: 5
+      offset: 0
+      sort_order: "ASCENDING"
+      sort_attribute: "name"
+    register: result
+
+  - name: Total clusters
+    debug:
+       msg: "# ENTRIES: {{ result.response.metadata.total_matches }}"
+
+  - name: How many entities in PC
+    ansible.builtin.set_fact:
+      nentries: "{{ result.response.metadata.total_matches }}"
+
+  - name: Cluster IP details
+    debug:
+      msg: 
+       - "CLUSTER: {{ result.response.entities[ item ].spec.name }}"
+       - "    VIP: {{ result.response.entities[ item].spec.resources.network.external_ip }}" 
+       - "   DSIP: {{ result.response.entities[ item].spec.resources.network.external_data_services_ip }}" 
+    when: " result.response.entities[ item ].spec.name  != 'Unnamed'"      
+    loop: "{{ range(0,  (nentries | int) ) | list }}"
+
+  - name: Clusters setfact cluster_A
+    set_fact:
+      cluster_uuid_A: "{{ result.response.entities[item].metadata.uuid }}"
+    when: " result.response.entities[ item ].spec.name  ==  cluster_name_A  "
+    loop: "{{ range(0,  (nentries | int) ) | list }}"
+
+  - name: Clusters setfact cluster_B
+    set_fact:
+      cluster_uuid_B: "{{ result.response.entities[item].metadata.uuid }}"
+    when: " result.response.entities[ item ].spec.name  ==  cluster_name_B  "
+    loop: "{{ range(0,  (nentries | int) ) | list }}"
+
+  - name: Clusters debug
+    debug:
+      msg:
+      - "{{ cluster_uuid_A }}"
+      - "{{ cluster_uuid_B }}"

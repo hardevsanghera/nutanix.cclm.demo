@@ -1,0 +1,20 @@
+---
+    - name: remove target Cluster from its PC
+      shell:
+         bash -ilc "/home/nutanix/prism/cli/ncli multicluster remove-from-multicluster external-ip-address-or-svm-ips={{ cluster_prefix_B }}.39 username=admin password='{{ nutanix_password }}' force=true"
+      register: pe_removed
+      delegate_to: "{{ cluster_VIP_B }}"
+
+    - name: Pause (wait) for PE to be removed from cluster_B's PC
+      pause:
+        seconds: 90
+
+    - name: Add target Cluster to Primary PC
+      shell:
+         bash -ilc "/home/nutanix/prism/cli/ncli multicluster register-to-prism-central external-ip-address-or-svm-ips={{ cluster_prefix_A}}.39 username=admin password='{{ nutanix_password }}'"
+      register: pe_added
+      delegate_to: "{{ cluster_VIP_B }}"
+
+    - name: Pause (wait) for PE to be added to cluster_A's PC
+      pause:
+        seconds: 90
