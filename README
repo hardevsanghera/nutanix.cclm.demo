@@ -58,7 +58,7 @@ KNOWN ISSUES
   has primary_network: "Primary" then Workstation deployment can fail with "400 Bad network uuid" - this does not happen if the runbook
   is executed BEFORE the stretch has been setup.  If this error occurs then you can:
   - in vars/vars.yaml set primary_network: "CCLMvlan" and once the VM is deployed change the network to Primary in the VM settings and re-boot it.
-  - or, just leave it on CCMvlan.
+  - or, just leave it on CCMvlan, or if the stretch vlan is already in place set primary_network: "CCLMvlan" from the start.
 
 
 VERSIONS
