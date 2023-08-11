@@ -1,5 +1,5 @@
 Version: 1.0
-August 2023
+11 August 2023
 hardev.sanghera@nutanix.com
 
 TO GET STARTED
@@ -39,7 +39,7 @@ WHAT YOU GET
 - A single PC (of the primary cluster) with cluster_A and cluster_B connected
 - A Windows Server VM with SQL Server and SQL Studio Manager installed - connected to vlan: CCLMvlan (the stretch vlan)
   - Only this VM can be live migrated
-- A Windows Workstation with SQL Studio Manager installed - connected to the Primary vlan
+- A Windows Workstation with SQL Studio Manager installed - connected to the Primary vlan (see KNOW ISSUES)
   - Although called a Workstation it's a server guest OS!
 - Both VMs are enabled for RDP and ping
 - cluster_A and cluster_B have:
@@ -52,6 +52,13 @@ PRE-REQS
   - Deploy with runbook: NCS (this gets you PC and well known names for networks, storage pool and others
   - A stretch vlan between the two clusters - this will be the  "Secondary" network information as reported in the RX HPOC booking email
     - You have to raise a Jira ticket requesting that the stretch vlan be setup between the two clusters you have booked
+
+KNOWN ISSUES
+- If HPOC operations have set-up the stretch vlan between your two clusters BEFORE you execute the runbook AND the Workstation VM 
+  has primary_network: "Primary" then Workstation deployment can fail with "400 Bad network uuid" - this does not happen if the runbook
+  is executed BEFORE the stretch has been setup.  If this error occurs then you can:
+  - in vars/vars.yaml set primary_network: "CCLMvlan" and once the VM is deployed change the network to Primary in the VM settings and re-boot it.
+  - or, just leave it on CCMvlan.
 
 
 VERSIONS
