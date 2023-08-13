@@ -144,6 +144,13 @@
       delegate_to: "{{ sqlservervmip }}"
       when:  vm_type  == 'server'
 
+    - name: Setup VMs for NGT
+      import_tasks: "{{ tdir }}/setup_ngt_tasks.yaml"
+      vars: 
+        ngt_vmname: "{{ sql_server_vmname}}" 
+        ngt_ip: "{{ sqlservervmip }}"
+      when: vm_type == "server"
+
     - name: Set Output message for completion
       ansible.builtin.set_fact: 
         final_msg: | 
@@ -232,6 +239,13 @@
         script: "{{ installsqlstudiops1 }}"
       delegate_to: "{{ wsvmip }}"
       when:  vm_type  == 'ws'
+
+    - name: Setup VMs for NGT
+      import_tasks: "{{ tdir }}/setup_ngt_tasks.yaml"
+      vars: 
+        ngt_vmname: "{{ ws_vmname}}" 
+        ngt_ip: "{{ wsvmip }}"
+      when: vm_type == "ws"
 
     - pause:
         seconds: 60

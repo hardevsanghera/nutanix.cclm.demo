@@ -85,4 +85,3 @@
          - "  - Create a Protecion Policy for CCLM"
          - "  - Create a Recovery Plan for CCLM"
          - "  - Demo live migration of {{ sql_server_vmname }} from cluster_A to cluster_B over the stretched vlan"
-

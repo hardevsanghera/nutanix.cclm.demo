@@ -30,7 +30,7 @@ cclm_vlan_name: "CCLMvlan"                                    #DO NOT EDIT - OK,
 cclm_category: "CCLMcat"                                      #DO NOT EDIT - OK, you can edit if you like
 sp_name: "SP01"                                               #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
 vswitch: "vs0"                                                #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
-primary_network: "Primary"                                    #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
+primary_network: "{{ cclm_vlan_name }}"                       #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit
 vlan_to_delete: "Secondary"                                   #DO NOT EDIT If deploying an HPOC with runbook NCS then do not edit  
 sw_uuid_A: ""                                                 #DO NOT EDIT switch uuid cluster_A
 sw_name_A: ""                                                 #DO NOT EDIT switch name cluster_A

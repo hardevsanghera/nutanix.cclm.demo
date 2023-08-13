@@ -1,0 +1,92 @@
+---
+  - name: Setting Variables
+    set_fact:
+      vm_name: ""
+
+  - debug:
+      msg:
+       - "{{ ngt_vmname }}"
+       - "{{ ngt_ip }}"
+        
+  - name: List vms using name filter criteria
+    ntnx_vms_info:
+      filter: 
+        vm_name: "{{ ngt_vmname }}"
+      kind: vm
+    register: result
+    ignore_errors: True
+
+  - name: Set spec / metatdata for VM to update
+    set_fact:
+      vm_spec: "{{ result.response.entities.0.spec }}"
+      vm_metadata: "{{ result.response.entities.0.metadata }}"
+      vm_uuid: "{{ result.response.entities.0.metadata.uuid }}"
+
+  - name: ...and the uuid is...
+    debug:
+      msg: "{{ vm_uuid }}"
+
+# - name: ...and the spec is...
+#   debug:
+#     msg: "{{ vm_spec }}"
+
+# - name: ...and the metadata is...
+#   debug:
+#     msg: "{{ vm_metadata }}"
+
+# - name: spec + metadata
+#   debug:
+#     msg: ({{ vm_spec }} + {{ vm_metadata }}) | to_nice_json
+
+  - name: Template the vm spec to include the NGT parts
+    template:
+      src: vm_update.j2
+      dest: "{{ sdir }}/vm_update.json"
+
+  - name: Integrate NGT element into the JSON
+    ansible.builtin.replace:
+      path: "{{ sdir }}/vm_update.json"
+      regexp: "'ON',"
+      replace: "'ON', 'guest_tools': { 'nutanix_guest_tools': {'state': 'ENABLED', 'iso_mount_state': 'MOUNTED' } },"
+    register: result
+
+# - name: Print out result of replace
+#   debug:
+#     msg: "{{ result }}"
+
+  - name: Update the VM so NGT enabled for vm and iso mounted
+    ansible.builtin.uri:
+      url: "https://{{ nutanix_host }}:9440/api/nutanix/v3/vms/{{ vm_uuid }}"
+      user: "{{ nutanix_username }}"
+      password: "{{ nutanix_password }}"
+      method: PUT
+      body: "{{ lookup('ansible.builtin.file','{{ sdir }}/vm_update.json') }}"
+      force_basic_auth: true
+      status_code: 202
+      body_format: json
+      validate_certs: no
+
+# - name: Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D
+#   ansible.windows.win_powershell:
+#     script: |
+#       D:
+#       ls
+#       .\setup.exe /quiet ACCEPTEULA=yes IGNOREWARNINGS=yes
+#   delegate_to: "{{ ngt_ip }}"
+#
+  - pause:
+      seconds: 90
+
+  - name: Copy ngt setup ps1 file to target 
+    ansible.windows.win_copy:
+      src: "{{ fdir }}/ngt.ps1"
+      dest: C:\
+    delegate_to: "{{ ngt_ip }}"
+
+  - name: Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D
+    win_shell: C:\ngt.ps1 >> C:\ngtlog.txt
+    delegate_to: "{{ ngt_ip }}"
+    ignore_errors: true
+
+  - debug:
+      msg: "NGT setup finished"
