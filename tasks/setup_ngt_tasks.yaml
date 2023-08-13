@@ -66,16 +66,8 @@
       body_format: json
       validate_certs: no
 
-# - name: Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D
-#   ansible.windows.win_powershell:
-#     script: |
-#       D:
-#       ls
-#       .\setup.exe /quiet ACCEPTEULA=yes IGNOREWARNINGS=yes
-#   delegate_to: "{{ ngt_ip }}"
-#
   - pause:
-      seconds: 90
+      seconds: 120
 
   - name: Copy ngt setup ps1 file to target 
     ansible.windows.win_copy:
