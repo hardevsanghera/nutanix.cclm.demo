@@ -6,15 +6,16 @@ TO GET STARTED
 Assuming a linux Workstation
 1. unzip the compressed to a directory or git clone
 2. cd to where the files are
-2. Edit vars/vars.yaml
+3. Edit vars/vars.yaml
    - edit items 1 - 8 to reflect the two clusters you have deployed
-3. Upload the qcow2 images to the Primary cluster:
+3a.You do not need to login to either PC to run the playbooks - You can login once deployment is complete, doesn't matter.
+4. Upload the qcow2 images to the Primary cluster:
    - ansible-playbook playbooks/get_image_param.yaml
    - wait for the uploads to complete - this can take 10 or so minutes
-4. run the main playbook
+5. run the main playbook
    - ansible-playbook main.yaml
    - this does a lot and can take 25 or so minutes
-5. The completion message will look something like:
+6. The completion message will look something like:
    ok: [localhost] => {
     "msg": [
         "All done, now you should:",
@@ -25,24 +26,25 @@ Assuming a linux Workstation
     ]
    } 
    - See WHAT YOU GET below for details of what was deployed and configured
-6. In PC of Primary:
+7. In PC of Primary:
     - enable Disaster Recovery (via settings)
     - configure a Protecion Policy
     - configure an Execution Plan
-7. Do your demo:
+8. Do your demo:
     - Although VMs have been provided with software (SQL Server and/or SQL Studio Manager) no client application has been provided.
     - You could obtain/write a client application that utilizes the SQL Server database while you live migrate it, or use ping!
 
 WHAT YOU GET
 - A single PC (of the primary cluster) with cluster_A and cluster_B connected
 - A Windows Server VM with SQL Server and SQL Studio Manager installed - connected to vlan: CCLMvlan (the stretch vlan)
-  - Only this VM can be live migrated
+  - Only server VM can be live migrated
 - A Windows Workstation with SQL Studio Manager installed - connected to vlan: CCLMvlan
   - Although called a Workstation it's a server guest OS!
 - Both VMs are enabled for RDP and ping
 - cluster_A and cluster_B have:
   - storage container:     CCLMcontainer
   - managed vlan/network:  CCLMvlan
+- PC
   - category:              CCLMcat
 
 PRE-REQS
@@ -50,6 +52,21 @@ PRE-REQS
   - Deploy with runbook: NCS (this gets you PC and well known names for networks, storage pool and others
   - A stretch vlan between the two clusters - this will be the  "Secondary" network information as reported in the RX HPOC booking email
     - You have to raise a Jira ticket requesting that the stretch vlan be setup between the two clusters you have booked
+
+NOTES
+The vswitches in the HPOC clusters report their name as "br0", however the API calls accept "vs0".
+
+ISSUES 
+When the setup_ntg_tasks.yaml playbook executes a Windows shell on a remote host to run the setup.exe for NGT the follwoing is reported:
+---
+TASK [Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D] ************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: winrm.exceptions.WinRMTransportError: Bad HTTP response returned from server. Code 400
+fatal: [localhost -> 10.42.12.146]: FAILED! => {"msg": "Unexpected failure during module execution.", "stdout": ""}
+...ignoring
+---
+
+The setup.exe does run though and the VM is rebooted as planned, workaround is to "ignore the error"and carry on.
+
 
 VERSIONS
 Tested and working with

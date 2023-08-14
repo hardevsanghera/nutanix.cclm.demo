@@ -7,11 +7,11 @@
 #### between cluster_A and cluster_B as well as the stretch vlan between the two clusters a VM can be live migrated A -> B and once
 #### data sync has settled the VM can be live migrated B -> A.
 ####
-cluster_name_A: "PHX-POC000"                                  #EDIT 1 Primary/Source cluster for CCLM - also used for Rest API calls to PC by these Ansible playbooks
-cluster_VIP_A: "10.10.10.10"                                  #EDIT 2 Primary/Source cluster A
+cluster_name_A: "PHX-POC00A"                                  #EDIT 1 Primary/Source cluster for CCLM - also used for Rest API calls to PC by these Ansible playbooks
+cluster_VIP_A: "10.10.99.37"                                  #EDIT 2 Primary/Source cluster A
 cluster_vlan_A: 999                                           #EDIT 3 Secondary vlan for cluster A
-cluster_name_B: "PHX-POC00A"                                  #EDIT 4 Secondary/Target cluster for CCLM
-cluster_VIP_B: "10.10.10.11"                                  #EDIT 5 Secondary/Target cluster B
+cluster_name_B: "PHX-POC00B"                                  #EDIT 4 Secondary/Target cluster for CCLM
+cluster_VIP_B: "10.10.98.37                                   #EDIT 5 Secondary/Target cluster B
 cluster_vlan_B: 998                                           #EDIT 6 Secondary vlan for cluster B - ie. stretch to this
 nutanix_username: "admin"                                     #EDIT 7 for your environment - Prism Central userid - use cluster_A PC
 nutanix_password: "password"                                  #EDIT 8 for your environment - Prism Central password - use ckuster_A PC
