@@ -1,15 +1,15 @@
 ---
 - name: Enable Disaster Recovery on cluster_A PC
   set_fact:
-    api_uri: "{{ 'https://' + pc + ':9440/api/nutanix/v3/services/disaster_recovery' }}"
+    api_uri: "https://{{cluster_prefix_A}}.39:9440/api/nutanix/v3/services/disaster_recovery"
 
 - name: Enable DR POST call
   local_action:
     module: uri
     url: "{{ api_uri }}"
     method: POST
-    url_username: "{{ pc_user }}"
-    url_password: "{{ pc_password }}"
+    url_username: "{{ nutanix_username }}"
+    url_password: "{{ nutanix_password }}"
     validate_certs: no
     return_content: yes
     status_code: 202
