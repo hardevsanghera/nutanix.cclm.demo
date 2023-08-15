@@ -30,12 +30,11 @@
         - "{{ cluster_VIP_A }}"
         - "{{ cluster_VIP_B }}"
 
-    - name: Enable DR on the Prism Central
-      debug:
-        msg: ": You must manually 'Enable Disaster Recovery' on cluster_A PC"
-
     - name: "Consolidate to a single PC at {{ cluster_prefix_A }}.39"
       import_tasks: "{{ tdir }}/setup_single_pc_tasks.yaml"
+
+    - name: Enable DR on the Prism Central
+      import_tasks: "{{ tdir }}/enable_dr_tasks.yaml"
 
     - name: Query the clusters
       import_tasks: "{{ tdir }}/query_clusters_tasks.yaml"
