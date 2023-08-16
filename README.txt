@@ -66,6 +66,15 @@ fatal: [localhost -> 10.42.12.146]: FAILED! => {"msg": "Unexpected failure durin
 The setup.exe does run though and the VM is rebooted as planned, workaround is to "ignore the error"and carry on (which
 is the behavious of the playbook).
 
+Timing - sometimes the target PC will not service an API requet in time (so you can get an error as follows) - trying it again will ikeleky work - so you
+
+comment out the succesfull tasks in main.yaml and re-run.
+---
+TASK [Create database server (MSSQL Server VM)] **********************************************************************************************************************
+fatal: [localhost]: FAILED! => {"changed": false, "error": "HTTP Error 422: UNPROCESSABLE ENTITY", "msg": "Failed fetching URL: https://10.XX.XX.39:9440/api/nutanix/v3/vms", "response": null, "status_code": 422}
+---
+
+
 
 VERSIONS
 Tested and working with
