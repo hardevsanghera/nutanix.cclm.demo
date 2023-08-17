@@ -1,0 +1,59 @@
+---
+- name: Accept EULA
+  local_action:
+    module: uri
+    url: "https://{{ item }}.39:9440/PrismGateway/services/rest/v1/eulas/accept"
+    method: POST
+    url_username: "{{ nutanix_username }}"
+    url_password: "{{ nutanix_password }}"
+    validate_certs: no
+    return_content: yes
+    status_code: 200
+    body_format: json
+    body: |
+      {
+        "username": "SE-User",
+        "companyName": "NTNX",
+        "jobTitle": "SE"
+      }
+    force_basic_auth: yes
+  check_mode: false
+  register: result
+  loop:
+    "{{ cluster_prefix_A }}"
+    "{{ cluster_prefix_B }}"
+
+#- name: Show result of the POST call
+#  debug:
+#    msg: 
+#     - "{{ result }}"
+#  check_mode: false
+
+- name: Disable pulse
+  local_action:
+    module: uri
+    url: "https://{{ item }}.39:9440/PrismGateway/services/rest/v1/pulse"
+    method: PUT
+    url_username: "{{ nutanix_username }}"
+    url_password: "{{ nutanix_password }}"
+    validate_certs: no
+    return_content: yes
+    status_code: 200
+    body_format: json
+    body: |
+      {
+	"emailContactList":null,
+	"enable":false,
+	"verbosityType":null,
+	"enableDefaultNutanixEmail":false,
+	"defaultNutanixEmail":null,
+	"nosVersion":null,
+	"isPulsePromptNeeded":false,
+	"remindLater":null
+      }
+    force_basic_auth: yes
+  check_mode: false
+  register: result
+  loop:
+    "{{ cluster_prefix_A }}"
+    "{{ cluster_prefix_B }}"

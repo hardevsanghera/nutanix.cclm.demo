@@ -36,6 +36,9 @@
     - name: Enable DR on the Prism Central
       import_tasks: "{{ tdir }}/enable_dr_tasks.yaml"
 
+    - name: Accept EULA and Disable pulse
+      import_tasks: "{{ tdir }}/eula_pulse_tasks.yaml"
+
     - name: Query the clusters
       import_tasks: "{{ tdir }}/query_clusters_tasks.yaml"
 
