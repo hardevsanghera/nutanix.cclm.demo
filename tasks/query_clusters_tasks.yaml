@@ -11,9 +11,9 @@
       sort_attribute: "name"
     register: result
 
-  - name: Total clusters
-    debug:
-       msg: "# ENTRIES: {{ result.response.metadata.total_matches }}"
+# - name: Total clusters
+#   debug:
+#      msg: "# ENTRIES: {{ result.response.metadata.total_matches }}"
 
   - name: How many entities in PC
     ansible.builtin.set_fact:
@@ -40,8 +40,8 @@
     when: " result.response.entities[ item ].spec.name  ==  cluster_name_B  "
     loop: "{{ range(0,  (nentries | int) ) | list }}"
 
-  - name: Clusters debug
-    debug:
-      msg:
-      - "{{ cluster_uuid_A }}"
-      - "{{ cluster_uuid_B }}"
+# - name: Clusters debug
+#   debug:
+#     msg:
+#     - "{{ cluster_uuid_A }}"
+#     - "{{ cluster_uuid_B }}"

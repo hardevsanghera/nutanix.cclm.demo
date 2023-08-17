@@ -22,8 +22,8 @@
   check_mode: false
   register: result
 
-- name: Show result of the POST call
-  debug:
-    msg: 
-     - "{{ result }}"
-  check_mode: false
+#- name: Show result of the POST call
+# debug:
+#   msg: 
+#    - "{{ result }}"
+# check_mode: false

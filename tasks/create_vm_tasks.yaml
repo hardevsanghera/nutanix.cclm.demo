@@ -3,11 +3,11 @@
       debug: 
         msg: 
          - "{{ ansible_play_name }}: Now deploying a Windows VMs"
-         - "Server image: {{ server_image_name }}"
-         - "Workstation image:{{ ws_image_name }}"
-         - "SQL Server vmname: {{ sql_server_vmname }}"
-         - "Worksation vmname: {{ ws_vmname }}"
-         - "Name of cluster A: {{ cluster_name_A }}"
+#        - "Server image: {{ server_image_name }}"
+#        - "Workstation image:{{ ws_image_name }}"
+#        - "SQL Server vmname: {{ sql_server_vmname }}"
+#        - "Worksation vmname: {{ ws_vmname }}"
+#        - "Name of cluster A: {{ cluster_name_A }}"
          - "====== NB: Will be using {{ server_image_name }} to deploy the Windows WS, for sysprep reasons"
 
     - name: Template Administrator password into sysprep.txt for new Windows Server and Workstation

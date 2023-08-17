@@ -1,8 +1,8 @@
 ---
-    - debug:
-        msg:
-         - "{{ cluster_VIP_A }}"
-         - "{{ cluster_VIP_B }}"
+#   - debug:
+#       msg:
+#        - "{{ cluster_VIP_A }}"
+#        - "{{ cluster_VIP_B }}"
 
 # try templating for cluster_A firewall rules ie. cluster_A opens ports for cluster_B IPs/ports
     - set_fact:

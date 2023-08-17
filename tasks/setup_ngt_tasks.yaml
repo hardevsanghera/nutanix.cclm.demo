@@ -3,10 +3,10 @@
     set_fact:
       vm_name: ""
 
-  - debug:
-      msg:
-       - "{{ ngt_vmname }}"
-       - "{{ ngt_ip }}"
+# - debug:
+#     msg:
+#      - "{{ ngt_vmname }}"
+#      - "{{ ngt_ip }}"
         
   - name: List vms using name filter criteria
     ntnx_vms_info:
@@ -22,9 +22,9 @@
       vm_metadata: "{{ result.response.entities.0.metadata }}"
       vm_uuid: "{{ result.response.entities.0.metadata.uuid }}"
 
-  - name: ...and the uuid is...
-    debug:
-      msg: "{{ vm_uuid }}"
+# - name: ...and the uuid is...
+#   debug:
+#     msg: "{{ vm_uuid }}"
 
 # - name: ...and the spec is...
 #   debug:
@@ -80,5 +80,5 @@
     delegate_to: "{{ ngt_ip }}"
     ignore_errors: true
 
-  - debug:
-      msg: "NGT setup finished"
+# - debug:
+#     msg: "NGT setup finished"
