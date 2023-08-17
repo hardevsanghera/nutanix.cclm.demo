@@ -33,10 +33,10 @@
     check_mode: false
     register: result
 
-  - name: Show result
-    debug:
-      msg: "{{ result.json }}"
-    check_mode: false
+# - name: Show result
+#   debug:
+#     msg: "{{ result.json }}"
+#   check_mode: false
 
   - name: Pull the target image into Prism Central
     local_action:

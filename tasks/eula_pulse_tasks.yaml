@@ -20,8 +20,8 @@
   check_mode: false
   register: result
   loop:
-    "{{ cluster_prefix_A }}"
-    "{{ cluster_prefix_B }}"
+    - "{{ cluster_prefix_A }}"
+    - "{{ cluster_prefix_B }}"
 
 #- name: Show result of the POST call
 #  debug:
@@ -42,18 +42,18 @@
     body_format: json
     body: |
       {
-	"emailContactList":null,
-	"enable":false,
-	"verbosityType":null,
-	"enableDefaultNutanixEmail":false,
-	"defaultNutanixEmail":null,
-	"nosVersion":null,
-	"isPulsePromptNeeded":false,
-	"remindLater":null
+        "emailContactList":null,
+        "enable":false,
+        "verbosityType":null,
+        "enableDefaultNutanixEmail":false,
+        "defaultNutanixEmail":null,
+        "nosVersion":null,
+        "isPulsePromptNeeded":false,
+        "remindLater":null
       }
     force_basic_auth: yes
   check_mode: false
   register: result
   loop:
-    "{{ cluster_prefix_A }}"
-    "{{ cluster_prefix_B }}"
+    - "{{ cluster_prefix_A }}"
+    - "{{ cluster_prefix_B }}"

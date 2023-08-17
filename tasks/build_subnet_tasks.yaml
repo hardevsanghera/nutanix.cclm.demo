@@ -7,7 +7,7 @@
         network_prefix: "{{ subnet_network_prefix }}"
         gateway_ip_address: "{{ cluster_prefix_A }}.129"
         start_address: "{{ cluster_prefix_A }}.132"
-        end_address: "{{ cluster_prefix_A }}.253"
+        end_address: "{{ cluster_prefix_A }}.250"
         dns_servers: [10.42.194.10]
         domain_search: []
         domain_name: []
@@ -54,7 +54,7 @@
         network_prefix: "{{ subnet_network_prefix }}"
         gateway_ip_address: "{{ cluster_prefix_A }}.129"
         start_address: "{{ cluster_prefix_A }}.132"
-        end_address: "{{ cluster_prefix_A }}.253"
+        end_address: "{{ cluster_prefix_A }}.250"
         dns_servers: [10.42.194.10]
         domain_search: []
         domain_name: []

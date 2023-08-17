@@ -16,7 +16,7 @@
 
   tasks:
 
-    - name: Set Workstation VM image to Windows Server image - until fix the Windows 10 image or its sysprep
+    - name: Set Workstation VM image to Windows Server image, until fix the Windows 10 image or its sysprep
       set_fact:
         ws_image_name: "{{ server_image_name }}"
 
