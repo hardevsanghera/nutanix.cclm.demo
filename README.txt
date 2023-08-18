@@ -7,7 +7,7 @@ Assuming a linux Workstation
 1. unzip the compressed to a directory or git clone
 2. cd to where the files are
 3. Edit vars/vars.yaml
-   - edit items 1 - 8 to reflect the two clusters you have deployed
+   - edit items 1 - 9 to reflect the two clusters you have deployed
 3a.You do not need to login to either PC to run the playbooks - You can login once deployment is complete, doesn't matter.
 4. Upload the qcow2 images to the Primary cluster:
    - ansible-playbook playbooks/get_image_param.yaml
