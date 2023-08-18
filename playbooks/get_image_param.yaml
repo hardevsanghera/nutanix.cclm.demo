@@ -10,7 +10,7 @@
     pc_user: "{{ nutanix_username }}"
     pc_password: "{{ nutanix_password }}" 
     image_description: "Used by CCLM Demo"
-    image_source_uri: "http://10.42.194.11/workshop_staging/" #assumes INTERNAL nutanix HPOC, build your own if you need to
+    image_source_uri: "http://{{ images_server_ip_dir }}/" #assumes INTERNAL nutanix HPOC, build your own if you need to
     api_uri: "{{ 'https://' + pc + ':9440/api/nutanix/v3/images' }}"
 
   tasks:

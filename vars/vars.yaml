@@ -15,6 +15,7 @@ cluster_VIP_B: "10.10.98.37                                   #EDIT 5 Secondary/
 cluster_vlan_B: 998                                           #EDIT 6 Secondary vlan for cluster B - ie. stretch to this
 nutanix_username: "admin"                                     #EDIT 7 for your environment - Prism Central userid - use cluster_A PC
 nutanix_password: "password"                                  #EDIT 8 for your environment - Prism Central password - use ckuster_A PC
+images_server_ip_dir: "10.10.97.37/workshop_staging"          #EDIT 9 http/fileserver IP/directory - ie the HPOC fileserver IP and staging dir, NO "/" on the end
 mysql_password: "mySQLabcd0"                                  #EDIT will set this login password for the MSSQL database
 ####
 ####
