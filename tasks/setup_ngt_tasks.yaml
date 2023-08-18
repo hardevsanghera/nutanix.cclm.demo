@@ -75,7 +75,7 @@
       dest: C:\
     delegate_to: "{{ ngt_ip }}"
 
-  - name: Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D
+  - name: Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D - IGNORE UNEXPECTED FAILURE MESSAGE
     win_shell: C:\ngt.ps1 >> C:\ngtlog.txt
     delegate_to: "{{ ngt_ip }}"
     ignore_errors: true
