@@ -11,9 +11,9 @@
       register: result
       ignore_errors: True
 
-    - name: result
-      debug:
-        msg: "{{ result }}"
+#   - name: result
+#     debug:
+#       msg: "{{ result }}"
 
     - name: capture vlan to delete's uuid
       set_fact:
