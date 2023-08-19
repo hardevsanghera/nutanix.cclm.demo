@@ -96,6 +96,9 @@
       with_file: "{{ fdir }}/{{ setdiskps1_file }}"
       when:  vm_type  == 'server'
 
+    - pause:
+        seconds: 21
+
     - name: Setup "T" DATA disk for SQL Server
       ansible.windows.win_powershell:
         script: "{{ sdir }}/{{ setdiskps1 }}"
