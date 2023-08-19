@@ -1,5 +1,5 @@
-Version: 1.1
-14 August 2023
+Version: 1.1.1
+18 August 2023
 hardev.sanghera@nutanix.com
 
 TO GET STARTED
@@ -8,6 +8,7 @@ Assuming a linux Workstation
 2. cd to where the files are
 3. Edit vars/vars.yaml
    - edit items 1 - 9 to reflect the two clusters you have deployed
+   - passwords are NOT protected by eg. vault
 3a.You do not need to login to either PC to run the playbooks - You can login once deployment is complete, doesn't matter.
 4. Upload the qcow2 images to the Primary cluster:
    - ansible-playbook playbooks/get_image_param.yaml
@@ -59,7 +60,7 @@ When the setup_ntg_tasks.yaml playbook executes a Windows shell on a remote host
 ---
 TASK [Silently install NGT (VM is rebooted) - assume cdrom is at Windows drive D] ************************************************************************************
 An exception occurred during task execution. To see the full traceback, use -vvv. The error was: winrm.exceptions.WinRMTransportError: Bad HTTP response returned from server. Code 400
-fatal: [localhost -> 10.42.12.146]: FAILED! => {"msg": "Unexpected failure during module execution.", "stdout": ""}
+fatal: [localhost -> 10.XX.XX.146]: FAILED! => {"msg": "Unexpected failure during module execution.", "stdout": ""}
 ...ignoring
 ---
 
@@ -71,7 +72,7 @@ Timing - sometimes the target PC will not service an API requet in time (so you 
 comment out the succesfull tasks in main.yaml and re-run.
 ---
 TASK [Create database server (MSSQL Server VM)] **********************************************************************************************************************
-fatal: [localhost]: FAILED! => {"changed": false, "error": "HTTP Error 422: UNPROCESSABLE ENTITY", "msg": "Failed fetching URL: https://10.XX.XX.39:9440/api/nutanix/v3/vms", "response": null, "status_code": 422}
+fatal: [localhost]: FAILED! => {"changed": false, "error": "HTTP Error 422: UNPROCESSABLE ENTITY", "msg": "Failed fetching URL: https://10.XX.XX.XX:9440/api/nutanix/v3/vms", "response": null, "status_code": 422}
 ---
 
 
@@ -80,16 +81,15 @@ VERSIONS
 Tested and working with
 - AOS:                      6.5.2.5 with Bundled AHV 20220304.342
 - Prism Central:            pc.2022.6.0.3
-- Ansible:
-                            ansible [core 2.13.7]
-                            python version = 3.8.10 (default, May 26 2023, 14:05:08) [GCC 9.4.0]
+- Ansible:                  ansible [core 2.13.7],
+                            python version = 3.8.10 (default, May 26 2023, 14:05:08) [GCC 9.4.0],
                             jinja version = 3.1.2
 - nutanix.ncp collection:   1.9.0
 
 ANSIBLE WORKSTATION 
 You will need access to one - build your own or:
 - Upload OVA to the cluster_A PC
-  - available at "http://10.42.194.11/users/hardev.sanghera/images/ansible-workstation-ubuntu-20.04.5.ova.zip"
+  - available at "http://10.XX.XX.XX/users/hardev.sanghera/images/ansible-workstation-ubuntu-20.04.5.ova.zip"
   - this is the HPOC file server
   - you must unzip the above zip file first - do it to the Download folder from eg. a prallels desktop which is close to your clusters
     that way the uploads are much faster.
