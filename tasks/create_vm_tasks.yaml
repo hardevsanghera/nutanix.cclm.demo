@@ -78,7 +78,6 @@
     - name: Dynamically add newly created Windows VM to the inventory
       add_host:
         hostname: "{{ sqlservervmip }}"
-        groups: threetiervms
         ansible_user: "{{ win_vm_user }}"
         ansible_password: "{{ win_vm_pw }}"
         ansible_connection: winrm
@@ -108,7 +107,7 @@
     - name: Read file into a variable for installing SQL Server software
       set_fact: 
          installsqlserverps1: "{{ item }}"
-      with_file: "{{ fdir }}/{{ installsqlserverps1_file }}"
+      with_file: "{{ sdir }}/{{ installsqlserverps1_file }}"
       when:  vm_type  == 'server'
 
     - name: Read file into a variable for installing SQL Server Management Studio
