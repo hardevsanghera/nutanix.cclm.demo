@@ -70,8 +70,6 @@
       - "{{ server_image_name }}"
       - "{{ ws_image_name }}"
 
-  - name: Show result of the last new image call - result is returned quickly - upload will take a few minutes, maybe 10 or more minutes
-    debug:
-      msg: 
-       - result
-    check_mode: false
+  - name: result is returned quickly - upload will take a few minutes, maybe 10 or more minutes
+    pause:
+      seconds: 3
