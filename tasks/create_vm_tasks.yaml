@@ -2,7 +2,7 @@
     - name: Preping Windows VMs
       debug: 
         msg: 
-         - "{{ ansible_play_name }}: Now deploying a Windows VMs"
+         - "{{ ansible_play_name }}: Now deploying Windows VMs"
 #        - "Server image: {{ server_image_name }}"
 #        - "Workstation image:{{ ws_image_name }}"
 #        - "SQL Server vmname: {{ sql_server_vmname }}"
@@ -89,6 +89,13 @@
         seconds: 120
       when:  vm_type  == 'server'
 
+    - name:  Make (ie. Enable)  a hole in the [fire]wall for pinging the SQL Server vm
+      ansible.windows.win_powershell:
+       script: |
+         Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"
+      delegate_to: "{{ sqlservervmip }}"
+      when:  vm_type  == 'server'
+
     - name: Read file into a variable for setting SQL server DATA disk
       set_fact: 
          setdiskps1: "{{ item }}"
@@ -130,13 +137,6 @@
 
     - pause: #Work around for timing issues - need server to finish boot/customizations
         seconds: 60
-      when:  vm_type  == 'server'
-
-    - name:  Make (ie. Enable)  a hole in the [fire]wall for pinging the SQL Server vm
-      ansible.windows.win_powershell:
-       script: |
-         Enable-NetFirewallRule -DisplayName "File and Printer Sharing (Echo Request - ICMPv4-In)"
-      delegate_to: "{{ sqlservervmip }}"
       when:  vm_type  == 'server'
 
     - name: Create an application database (for Tasks application - application not installed)
@@ -211,7 +211,6 @@
     - name: Dynamically add newly created Windows VM to the inventory
       add_host:
         hostname: "{{ wsvmip }}"
-        groups: threetiervms
         ansible_user: "{{ wswin_vm_user }}"
         ansible_password: "{{ win_vm_pw }}"
         ansible_connection: winrm
