@@ -97,7 +97,8 @@ You will need access to one - build your own or:
     - it's an Ubunto 20.04 workstation
     - user:pw  ubuadmin:nutanix/4u
     - it is enabled for DP (yes, RDP)
-    - upgrade ansible collection nutanix.ncp (ansible-galaxy collection install nutanix.ncp --force)
+    - upgrade ansible collection nutanix.ncp to version 1.9.0 (or latest) with command:
+      - $ ansible-galaxy collection install nutanix.ncp --force
 
 NOTES
 The vswitches in the HPOC clusters report their name as "br0", however the API calls accept "vs0".
