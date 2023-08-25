@@ -8,7 +8,7 @@ Assuming a linux Workstation
 2. cd to where the files are
 3. Edit vars/vars.yaml
    - edit items 1 - 9 to reflect the two clusters you have deployed
-   - passwords are NOT protected by eg. vault
+   - passwords are NOT protected by eg. vault, use the same password when requesting both HPOC clusters
 3a.You do not need to login to either PC to run the playbooks - You can login once deployment is complete, doesn't matter.
 4. Upload the qcow2 images to the Primary cluster:
    - ansible-playbook playbooks/get_image_param.yaml
